@@ -1,0 +1,390 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Principal</title>
+    </h:head>
+    <h:form id="form-navbar">
+        <h:body>
+            <div class="card">
+                <p:tabMenu activeIndex="3">
+                    <p:menuitem value="Usuarios" outcome="usuarios" icon="pi pi-fw pi-users" rendered="#{usuarioController.validaTipoUsuario(usuarioController.nombreUsuario, usuarioController.contrasena)}">          
+                    </p:menuitem>
+                    <p:menuitem value="Productos" outcome="productos" icon="pi pi-shopping-cart">     
+                    </p:menuitem>
+                    <p:menuitem value="Log Out" outcome="index" icon="pi pi-sign-out" actionListener='#{loginController.Back()}'>
+                    </p:menuitem>
+                </p:tabMenu>
+            </div>
+        </h:body>
+    </h:form>
+    <h:body>
+        <!-- Carrito de Compras -->
+        <p:sidebar widgetVar="sidebar2" position="right">
+            <h3>Carrito de Compras</h3>
+            <div class="card">
+                <h:form id="form-carrito">
+                    <p:dataTable id="products" 
+                                 var="product" 
+                                 value="#{productoController.listaProductos}" 
+                                 rowKey="#{product.idProducto}"
+                                 selection="#{productoController.selectedProducto}" 
+                                 selectionMode="single"
+                                 emptyMessage="No se han seleccionado productos para el carrito"
+                                 > 
+
+                        <f:facet name="header">
+                            Listado de Productos
+                        </f:facet>
+
+                        <p:column headerText="Nombre">
+                            <h:outputText value="#{product.nombre_Producto}" />
+                        </p:column>
+                        <p:column headerText="Precio">
+                            <h:outputText value="#{product.precio}" />
+                        </p:column>
+                        <p:column headerText="Cantidad">
+                            <h:outputText value="#{product.cantidad}" />
+                        </p:column>
+                        
+                    </p:dataTable>
+
+                    <div class="p-field p-col-12 p-md-4" style="margin-top: 30px;">
+                        <p:outputLabel for="totalCarrito" value="Total Carrito: "/>
+                        <p:inputNumber id="totalCarrito" 
+                                       value="#{productoController.montoCarrito}"
+                                       decimalPlaces="2"
+                                       symbol=" CRC" symbolPosition="s"
+                                       decimalSeparator="." 
+                                       thousandSeparator=","
+                                       disabled="true"
+                                       styleClass="margin-top"
+                                       
+                                       />
+                    </div>
+                    <div class="p-field p-col-12 p-md-4" style="margin-top: 30px;">
+                        <p:commandButton value="Finalizar Compra" 
+                                         actionListener="#{facturaController.FinalizarCompra(productoController.listaProductos, usuarioController.nombreUsuario)}"
+                                         onclick="PF('sidebar2').hide()"
+                                         update="form-carrito:totalCarrito"
+                                         >
+                            
+                        </p:commandButton>            
+                    </div>
+                    <!-- TODO Click derecho opiones  -->
+                    <p:contextMenu for="products">
+                        <p:menuitem value="Eliminar" 
+                                    update="form-carrito:products" 
+                                    icon="pi pi-times"
+                                    action="#{productoController.EliminarDeCarrito(productoController.selectedProducto)}"
+                                    />
+                    </p:contextMenu>
+                </h:form>
+            </div>
+        </p:sidebar>
+        
+        <h:form id="form-confirmacion">
+            <p:dialog header="Confirmación" 
+                        showEffect="fade" 
+                        modal="true"
+                        widgetVar="confirmacionProductDialog" 
+                        responsive="true"
+                        >
+                <p:outputPanel id="validacion-content" class="ui-fluid">
+                    <p:outputPanel>
+                         <div class="p-text-center">¡Compra realizada con éxito! Por favor verifique la factura en su correo electrónico</div>
+                    </p:outputPanel>
+                </p:outputPanel>
+                  <f:facet name="validacionfooter">
+                      <p:commandButton value="Aceptar" 
+                           icon="pi pi-check" 
+                           onclick="PF('confirmacionProductDialog').hide()"
+                           actionListener="#{productoController.RedireccionarInicio()}"/>
+                  </f:facet>
+          </p:dialog>
+        </h:form>
+        
+        <h:form id="form-toolbar">
+            <p:growl id="message-carrito" showDetail="true"/>
+            <p:toolbar>
+                <p:toolbarGroup>
+                    <p:commandButton value="Nuevo" 
+                                     icon="pi pi-plus" 
+                                     update="form-listado:dt-products" 
+                                     oncomplete="PF('newProductDialog').show()"
+                                     styleClass="ui-button-success" 
+                                     style="margin-right: .5rem"
+                                     rendered="#{usuarioController.validaTipoUsuario(usuarioController.nombreUsuario, usuarioController.contrasena)}"
+                                     >
+                        <p:resetInput target=":form-toolbar:new-product-content"/>
+                    </p:commandButton>
+                    <div class="row" style="align-content: flex-end">
+                        <p:commandButton icon="pi pi-shopping-cart" type="button" onclick="PF('sidebar2').show()" styleClass="p-mr-2" />
+                    </div>
+                </p:toolbarGroup>
+            </p:toolbar>
+
+            <p:dialog header="Nuevo Producto" 
+                      showEffect="fade" 
+                      modal="true"
+                      widgetVar="newProductDialog" 
+                      responsive="true">
+                <p:outputPanel id="new-product-content" class="ui-fluid">
+                    <p:outputPanel>
+                        <div class="p-field">
+                            <p:outputLabel for="name">Nombre Producto</p:outputLabel>
+                            <p:inputText id="name" value="#{productoController.nombreProdcuto}" required="true"/>
+                        </div>
+                        <div class="p-field">
+                            <p:outputLabel for="description">Categoría</p:outputLabel>
+                            <p:selectOneRadio id="description" value="#{productoController.categoria}"
+                                              layout="responsive" columns="2">
+                                <f:selectItem itemLabel="Accesorios" itemValue="Accesorios"/>
+                                <f:selectItem itemLabel="Ropa" itemValue="Ropa"/>
+                                <f:selectItem itemLabel="Electronicos" itemValue="Electronicos"/>
+                            </p:selectOneRadio>
+                        </div>
+                        <div class="p-formgrid p-grid">
+                            <div class="p-field p-col">
+                                <p:outputLabel for="price">Precio</p:outputLabel>
+                                <p:inputNumber id="price" value="#{productoController.precio}"
+                                               symbol=" CRC" symbolPosition="s"
+                                               decimalSeparator="." thousandSeparator=","/>
+                            </div>
+                        </div>
+                        <div class="p-field p-col">                            
+                            <p:outputLabel for="stock">Inventario</p:outputLabel>                           
+                            <p:spinner id="stock" 
+                                       min="0" 
+                                       value="#{productoController.inventario}"/>                        
+                        </div>
+                        <!--<div class="p-field p-col">
+                            <h:form enctype="multipart/form-data">
+                                <p:outputLabel for="img">Imagen</p:outputLabel>
+                                <p:fileUpload id="img" listener="" skinSimple="true" />
+                            </h:form>
+                        </div>-->
+                        <div class="card">
+                            <h:form enctype="multipart/form-data">
+                            <p:outputLabel for="img">Imagen</p:outputLabel>
+                            <p:fileUpload id="img" value="#{productoController.file}" skinSimple="true" />
+                            <p:commandButton value ="Cargar" actionListener="#{productoController.upload(event)}" />
+                            </h:form>
+                        </div>
+                    </p:outputPanel>
+                </p:outputPanel>
+                <f:facet name="footer">
+                    <p:commandButton value="Guardar" 
+                                     icon="pi pi-check" 
+                                     actionListener="#{productoController.InsertarProducto()}"
+                                     update="form-listado:dt-products"
+                                     process="new-product-content @this"/>
+                    <p:commandButton value="Cancelar" 
+                                     icon="pi pi-times" 
+                                     onclick="PF('newProductDialog').hide()"
+                                     class="ui-button-secondary"/>
+                </f:facet>
+            </p:dialog>
+        </h:form> 
+
+        <!-- Listado de Productos general -->
+        <h:form id="form-listado">
+            <div class="card crud-demo">
+                <p:growl id="messages" showDetail="true"/>
+
+                <p:dataTable id="dt-products" 
+                             widgetVar="dtProducts" 
+                             var="product" 
+                             value="#{productoController.listaProductosGeneral}"
+                             reflow="true" 
+                             styleClass="products-table"
+                             selection="#{productoController.selectedProducto}"
+                             rowKey="#{product.idProducto}" 
+                             paginator="true"
+                             rows="10" 
+                             rowSelectMode="add" 
+                             selectionMode="single"
+                             paginatorPosition="bottom"
+                             emptyMessage="No existen productos registrados"
+                             >
+                    <f:facet name="header">
+                        <div class="products-table-header">
+                            <span style="font-weight: bold">Productos</span>
+
+                            <span class="filter-container ui-input-icon-left">
+                                <i class="pi pi-search"></i>
+                                <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar"/>
+                            </span>
+                        </div>
+                    </f:facet>
+
+                    <p:column headerText="Nombre" sortBy="#{product.nombre_Producto}" filterBy="#{product.nombre_Producto}">
+                        <h:outputText value="#{product.nombre_Producto}"/>
+                    </p:column>
+
+                    <p:column headerText="Imagen" exportable="false">
+                        <p:graphicImage value="#{product.image}" width="120" height="100" styleClass="product-image" />
+                    </p:column>
+                        
+                    <p:column headerText="Precio" sortBy="#{product.precio}">
+                        <h:outputText value="#{product.precio}" style="font-weight: 700">
+                            <f:convertNumber currencySymbol="₡" type="currency"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Categoría" sortBy="#{product.categoria}" filterBy="#{product.categoria}">
+                        <h:outputText value="#{product.categoria}"/>
+                    </p:column>
+                    <p:column headerText="Inventario" sortBy="#{product.inventario}" >
+                        <h:outputText value="#{product.inventario}"/>
+                    </p:column>
+                    <p:column exportable="false">
+                        <p:commandButton icon="pi pi-pencil" 
+                                         update="form-listado:manage-product-content"
+                                         oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="edit-button rounded-button ui-button-success" 
+                                         rendered="#{usuarioController.validaTipoUsuario(usuarioController.nombreUsuario, usuarioController.contrasena)}"
+                                         process="@this">
+                            <f:setPropertyActionListener value="#{product}" target="#{productoController.selectedProducto}"/>
+                            <p:resetInput target="form-listado:manage-product-content"/>
+                        </p:commandButton>
+                        
+                        <p:commandButton class="ui-button-warning rounded-button" 
+                                         icon="pi pi-trash" 
+                                         process="@this"
+                                         oncomplete="PF('deleteProductDialog').show()"
+                                         rendered="#{usuarioController.validaTipoUsuario(usuarioController.nombreUsuario, usuarioController.contrasena)}">
+                            <f:setPropertyActionListener value="#{product}" target="#{productoController.selectedProducto}"/>
+                            <p:resetInput target="form-listado:carrito-product-content"/>
+                        </p:commandButton>
+                    </p:column>
+                    <p:column exportable="false">
+                        <p:commandButton value="Agregar a Carrito"
+                                         update="form-listado:carrito-product-content"
+                                         oncomplete="PF('carritoProductDialog').show()"
+                                         process="@this">
+                            <f:setPropertyActionListener value="#{product}" target="#{productoController.selectedProducto}"/>
+                        </p:commandButton>
+                    </p:column>
+                </p:dataTable>
+
+                <p:dialog header="Detalles del Producto" 
+                          showEffect="fade" 
+                          modal="true"
+                          widgetVar="manageProductDialog" 
+                          responsive="true">
+                    <p:outputPanel id="manage-product-content" class="ui-fluid">
+                        <p:outputPanel rendered="#{not empty productoController.selectedProducto}">
+                            <div class="p-field">
+                                <p:outputLabel for="name">Nombre Producto</p:outputLabel>
+                                <p:inputText id="name" value="#{productoController.selectedProducto.nombre_Producto}" required="true"/>
+                            </div>
+                            <div class="p-field">
+                                <p:outputLabel for="description">Categoría</p:outputLabel>
+                                <p:selectOneRadio id="description" value="#{productoController.selectedProducto.categoria}"
+                                                  layout="responsive" columns="2">
+                                    <f:selectItem itemLabel="Accesorios" itemValue="Accesorios"/>
+                                    <f:selectItem itemLabel="Ropa" itemValue="Ropa"/>
+                                    <f:selectItem itemLabel="Electrónicos" itemValue="Electronicos"/>
+                                </p:selectOneRadio>
+                            </div>
+                            <div class="p-formgrid p-grid">
+                                <div class="p-field p-col">
+                                    <p:outputLabel for="price">Precio</p:outputLabel>
+                                    <p:inputNumber id="price" value="#{productoController.selectedProducto.precio}"
+                                                   symbol="CRC" symbolPosition="s"
+                                                   decimalSeparator="." thousandSeparator=","/>
+                                </div>
+                            </div>
+                            <div class="p-field p-col">
+                                <p:outputLabel for="stock">Inventario</p:outputLabel>
+                                <p:spinner id="stock" min="0" value="#{productoController.selectedProducto.inventario}"/>
+                            </div>
+
+                        <!--<div class="card">
+                            <h:form enctype="multipart/form-data">
+                            <p:outputLabel for="imgUpdate">Imagen</p:outputLabel>
+                            <p:fileUpload id="imgUpdate" value="" skinSimple="true" />
+                            <p:commandButton value ="Cargar" actionListener="" />
+                            </h:form>
+                        </div>-->
+                        </p:outputPanel>
+                    </p:outputPanel>
+                    <f:facet name="footer">
+                        <p:commandButton value="Save" icon="pi pi-check" actionListener="#{productoController.ActualizarProducto(productoController.selectedProducto)}"
+                                         update="manage-product-content" process="manage-product-content @this"/>
+                        <p:commandButton value="Cancel" icon="pi pi-times" onclick="PF('manageProductDialog').hide()"
+                                         class="ui-button-secondary"/>
+                    </f:facet>
+                </p:dialog>
+
+                <p:dialog header="Agregar a Carrito" 
+                          showEffect="fade" 
+                          modal="true"
+                          widgetVar="carritoProductDialog" 
+                          responsive="true">
+                    <p:outputPanel id="carrito-product-content" class="ui-fluid">
+                        <p:outputPanel rendered="#{not empty productoController.selectedProducto}">
+                            <div class="p-field">
+                                <p:outputLabel for="nombreProductoCarrito">Nombre Producto</p:outputLabel>
+                                <p:inputText id="nombreProductoCarrito" value="#{productoController.selectedProducto.nombre_Producto}" required="true"/>
+                            </div>
+
+                            <div class="p-formgrid p-grid">
+                                <div class="p-field p-col">
+                                    <p:outputLabel for="precioCarrito">Precio</p:outputLabel>
+                                    <p:inputNumber id="precioCarrito" value="#{productoController.selectedProducto.precio}"
+                                                   symbol="CRC" symbolPosition="s"
+                                                   decimalSeparator="." 
+                                                   thousandSeparator=","
+                                                   required="true"/>
+                                </div>
+                            </div>
+                            <div class="p-field p-col">
+                                <p:outputLabel for="stockCarrito">Cantidad</p:outputLabel>
+                                <p:spinner id="stockCarrito" min="1" value="#{productoController.selectedProducto.cantidad}" required="true"/>
+                            </div>
+                        </p:outputPanel>
+                    </p:outputPanel>
+                    <f:facet name="footer">
+                        <p:commandButton value="Insertar" 
+                                         icon="pi pi-check" 
+                                         actionListener="#{productoController.InsertarEnCarrito(productoController.selectedProducto)}"
+                                         update="carrito-product-content" 
+                                         process="carrito-product-content @this"/>
+                        
+                        <p:commandButton value="Cancelar" 
+                                         icon="pi pi-times" 
+                                         onclick="PF('carritoProductDialog').hide()"
+                                         class="ui-button-secondary">
+                            <p:resetInput target="form-listado:carrito-product-content"/>
+                        </p:commandButton> 
+
+                    </f:facet>
+                </p:dialog>
+
+                <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
+                                 message="¿Eliminar Producto?" header="Confirm" severity="warn">
+                    <p:commandButton value="Si" 
+                                     icon="pi pi-check" 
+                                     actionListener="#{productoController.EliminarProducto(productoController.selectedProducto)}"
+                                     update="form-listado:dt-products"
+                                     ajax="true"
+                                     process="@this" 
+                                     oncomplete="PF('deleteProductDialog').hide()"/>
+                    <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                                     onclick="PF('deleteProductDialog').hide()"/> 
+                </p:confirmDialog>
+
+                <p:confirmDialog global="true" showEffect="fade" width="300">
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                                     icon="pi pi-times"/>
+                </p:confirmDialog>
+            </div>
+        </h:form> 
+    </h:body>
+</html>
+

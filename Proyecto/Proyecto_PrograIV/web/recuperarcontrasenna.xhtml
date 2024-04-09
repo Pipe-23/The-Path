@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Recuperar Contraseña</title>
+        <link type="text/css" rel="stylesheet" href="https://www.primefaces.org/showcase/javax.faces.resource/css/layout/layout.css.xhtml?ln=showcase"></link>
+    </h:head>
+    <h:body>
+        
+        <div style="text-align: center ; margin-top: 30px; margin-bottom: 30px">
+            <h3>Recuperar Contraseña</h3>
+        </div>
+        
+        <h:form id= "form2">
+            <p:messages id="msg" showDetail="true"/>
+            <p:growl id="growl" 
+                     showDetail="true"
+                     sticky="true">
+                <p:panel header="Cambiar Contraseña" >
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputLabel value="Nombre de Usuario: "/>
+                        <p:inputText value= "#{usuarioController.nombreUsuario}" required="true"/>
+                         
+                        <p:outputLabel for="password" styleClass="p-col-fixed" style="width:100px" value="Nueva Contraseña"/>
+                        <p:password id="password" value="#{usuarioController.contrasena}" match="password2" label="Password 1" required="true" />
+                        
+                        <p:outputLabel for="password2" styleClass="p-col-fixed" style="width:100px" value="Repetir Contraseña"/>
+                        <p:password id="password2" value="#{usuarioController.contrasena}" label="Password 2" required="true"/>
+
+                        <h:outputText/>
+                        <h:outputText/>
+                        <p:commandButton value="Cambiar Contraseña" actionListener="#{usuarioController.CambiarContrasena()}" 
+                                         update="msg" />
+
+                    </h:panelGrid>
+                </p:panel>
+            </p:growl>
+        </h:form>
+    </h:body>
+</html>

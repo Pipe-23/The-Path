@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Registro de Usuario</title>
+    </h:head>
+    <h:body>
+        <div style="text-align: center ; margin-top: 30px; margin-bottom: 30px">
+            <h3>Acceso al Sistema</h3>
+        </div>
+        <h:form>
+            <p:messages id="msg" showDetail="true"/>
+                <p:growl id="growl" 
+                         showDetail="true"
+                         sticky="true"/>
+                
+                <p:panel header="Registro" >
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputLabel value="Nombre de Usuario: "/>
+                        <p:inputText value="#{usuarioController.nombreUsuario}" required="true"/>
+                        
+                        <h:outputLabel value="Nombre Completo: "/>
+                        <p:inputText value="#{usuarioController.nombreCompleto}" required="true"/>
+                        
+                        <h:outputLabel value="Contraseña: "/>
+                        <p:password value="#{usuarioController.contrasena}" required="true"/>
+                        
+                        <h:outputLabel value="Correo Electrónico: "/>
+                        <p:inputText value="#{usuarioController.email}" required="true"/>
+                        <h:outputText/>
+                        
+                        <p:commandButton value="Registrar" 
+                                         actionListener="#{usuarioController.IngresaUsuarioRegistro()}" 
+                                         update="msg"/>
+                        
+                    </h:panelGrid> 
+                </p:panel>  
+        </h:form>
+    </h:body>
+</html>
+
