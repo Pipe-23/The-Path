@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "wn0a4Ei1IgbgSFpsYdwbvcwmM5abaCm4nA25yBf6zrg=",
+  "Source": "taskListApi",
+  "BasePath": "_content/taskListApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
